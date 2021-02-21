@@ -1,6 +1,5 @@
 module.exports = function (req, res) {
 
-    const userId = req.cookies.id;
     const transactionId = req.params.id;
 
     if (isNaN(userId) || isNaN(transactionId)) {
@@ -10,9 +9,9 @@ module.exports = function (req, res) {
         const connection = require('../lib/connection');
 
         connection.query(
-            "SELECT State FROM Transaction WHERE Source = ?",
-            [userId],
-            function (error, results, fields) {
+            "SELECT State FROM Transaction WHERE id = ?",
+            [transactionId],
+            function (error, results) {
                 if (!error && results.length === 1) {
                     res.json({ data: results[0]['State'] });
                 } else {
