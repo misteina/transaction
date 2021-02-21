@@ -9,6 +9,7 @@ app.disable('x-powered-by');
 
 app.use(helmet());
 app.use(cors());
+app.use(express.json());
 app.use(cookieParser(require('./lib/secret')));
 app.use(require('./middlewares/auth'));
 

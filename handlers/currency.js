@@ -50,13 +50,10 @@ module.exports = function (req, res) {
                 if (!error && results.affectedRows === 1) {
                     res.json({ success: "Wallet Id added successfully" });
                 } else {
-                    res.status(406).json({ error: "Request failed" });
+                    res.status(406).json({ error: error.sqlMessage });
                 }
             }
         );
-
-        connection.end();
-
     } else {
         res.status(406).json({ error: errors });
     }

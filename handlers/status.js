@@ -19,7 +19,5 @@ module.exports = function (req, res) {
                 }
             }
         );
-
-        connection.end();
     }
 }

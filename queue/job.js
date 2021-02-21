@@ -35,8 +35,6 @@ module.exports = async function addToQueue(params) {
                                                             });
                                                         }
                                                         winston.log('info', `Transaction id #${job.data.id} completed successfuly`);
-
-                                                        connection.end();
                                                     });
                                                 } else {
                                                     return connection.rollback(function () {

@@ -21,23 +21,20 @@ module.exports = function(req, res){
         const connection = require('../lib/connection');
 
         connection.query(
-            "INSERT INTO Users (Name, Email, ApiKey) VALUES (?, ?, ?)",
+            "INSERT INTO User (Name, Email, ApiKey) VALUES (?, ?, ?)",
             [user, email, apiKey],
-            function (error, results){
+            function (error, results, fields){
                 if (!error && Number.isInteger(parseInt(results.insertId))){
 
                     res.cookie('id', results.insertId, { signed: true });
-                    res.cookie('auth', apiKey, { signed: true })
+                    res.cookie('auth', apiKey, { signed: true });
 
                     res.json({ success: "Registration successful" });
                 } else {
-                    res.status(406).json({ error: "Request failed" });
+                    res.status(406).json({ error: error.sqlMessage });
                 }
             }
         );
-
-        connection.end();
-
     } else {
         res.status(406).json({error: errors});
     }
