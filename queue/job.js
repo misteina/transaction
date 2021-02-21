@@ -24,7 +24,7 @@ module.exports = async function addToQueue(params) {
                                 function (error, results) {
                                     if (!error && results.affectedRows === 1) {
                                         connection.query(
-                                            "UPDATE Transaction SET State = 'Success' WHERE id = ?",
+                                            "UPDATE Transaction SET State = 'Success', Processed = NOW() WHERE id = ?",
                                             [job.data.id],
                                             function (error, results){
                                                 if (!error && results.affectedRows === 1){
@@ -35,6 +35,8 @@ module.exports = async function addToQueue(params) {
                                                             });
                                                         }
                                                         winston.log('info', `Transaction id #${job.data.id} completed successfuly`);
+
+                                                        connection.end();
                                                     });
                                                 } else {
                                                     return connection.rollback(function () {
