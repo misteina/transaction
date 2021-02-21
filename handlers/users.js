@@ -1,7 +1,7 @@
 module.exports = function(req, res){
 
+    const user = req.body.user.trim();
     const email = req.body.email;
-    const password = req.body.password;
 
     const errors = [];
 
@@ -10,21 +10,21 @@ module.exports = function(req, res){
     if (!validateEmail.validate(email)){
         errors.push("Invalid email");
     }
-    if (password.length > 50 || password.length < 5){
-        errors.push("Invalid password");
+    if (!/^[A-Za-z\s]+$/.test(user) || user.length > 50 || user.length < 5){
+        errors.push("Invalid user name");
     }
 
     if (errors.length === 0){
 
-        const hash = require('bcrypt').hashSync(password, 10);
+        const apiKey = require('crypto').randomBytes(20).toString('hex');
 
         const connection = require('../lib/connection');
 
         connection.query(
-            "INSERT INTO Users (Email, Password) VALUES (?, ?)",
-            [email, password],
-            function (error, results, fields){
-                if (!error && Number.isInteger(results.insertId)){
+            "INSERT INTO Users (Name, Email, ApiKey) VALUES (?, ?, ?)",
+            [user, email, apiKey],
+            function (error, results){
+                if (!error && !isNaN(results.insertId)){
                     res.json({ success: "Registration successful" });
                 } else {
                     res.status(406).json({ error: "Request failed" });
