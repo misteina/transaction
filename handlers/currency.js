@@ -1,18 +1,30 @@
+// This is the route handler to add transaction currency
+
 module.exports = function (req, res) {
 
-    const bitcoin = req.body.bitcoin;
-    const ethereum = req.body.ethereum;
-    const userId = req.cookies.id;
+    const bitcoin = req.body.bitcoin.trim();
+    const ethereum = req.body.ethereum.trim();
+    const userId = req.signedCookies.id;
 
     const errors = [];
 
+    // From my little research the bitcoin and Ethereum wallet id takes the format like:
+    // 8a15ne4d-3d6c-6745-d282-da885h64pqf9
+    // Therefore the validation regex will be structured like:
+    // /[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}/
+
+    const walletFormat = /[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}/;
+
+    if (!Number.isInteger(parseInt(userId))){
+        errors.push("Invalid user ID");
+    }
     if (bitcoin.length === 0 && ethereum.length === 0) {
         res.status(406).json({ error: "Please fill at least one wallet id" });
     }
-    if (bitcoin.length > 0 && bitcoin.length !== 36) {
+    if (bitcoin.length > 0 && !walletFormat.test(bitcoin)) {
         errors.push("Invalid bitcoin wallet id");
     }
-    if (ethereum.length > 0 && ethereum.length !== 36) {
+    if (ethereum.length > 0 && !walletFormat.test(ethereum)) {
         errors.push("Invalid ethereum wallet id");
     }
 
@@ -34,7 +46,7 @@ module.exports = function (req, res) {
         connection.query(
             query,
             params,
-            function (error, results, fields) {
+            function (error, results) {
                 if (!error && results.affectedRows === 1) {
                     res.json({ success: "Wallet Id added successfully" });
                 } else {

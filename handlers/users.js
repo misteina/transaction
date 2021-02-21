@@ -24,7 +24,11 @@ module.exports = function(req, res){
             "INSERT INTO Users (Name, Email, ApiKey) VALUES (?, ?, ?)",
             [user, email, apiKey],
             function (error, results){
-                if (!error && !isNaN(results.insertId)){
+                if (!error && Number.isInteger(parseInt(results.insertId))){
+
+                    res.cookie('id', results.insertId, { signed: true });
+                    res.cookie('auth', apiKey, { signed: true })
+
                     res.json({ success: "Registration successful" });
                 } else {
                     res.status(406).json({ error: "Request failed" });

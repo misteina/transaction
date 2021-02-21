@@ -2,24 +2,24 @@ module.exports = function (req, res){
     
     const amount = req.body.amount;
     const currency = req.body.currency;
-    const source = req.cookies.id;
     const target = req.body.target;
+    const source = req.signedCookies.id;
 
     const errors = [];
 
-    if (isNaN(userId)){
+    if (!Number.isInteger(parseInt(userId))){
         errors.push("Invalid user id");
     }
-    if (isNaN(amount)){
+    if (!Number.isInteger(parseInt(amount))){
         errors.push("Invalid amount selected");
     }
     if (currency !== 'Bitcoin' && currency !== 'Ethereum'){
         errors.push("Invalid currency selected");
     }
-    if (isNaN(source)){
+    if (!Number.isInteger(parseInt(source))){
         errors.push("Invalid sender");
     }
-    if (isNaN(target)) {
+    if (!Number.isInteger(parseInt(target))) {
         errors.push("Invalid receiver");
     }
 

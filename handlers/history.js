@@ -1,8 +1,8 @@
 module.exports = function (req, res) {
 
-    const userId = req.cookies.id;
+    const userId = req.signedCookies.id;
 
-    if (isNaN(userId)){
+    if (!Number.isInteger(parseInt(userId))){
         res.status(406).json({error: "invalid user id"});
     } else {
 

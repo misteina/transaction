@@ -2,7 +2,7 @@ module.exports = function (req, res) {
 
     const transactionId = req.params.id;
 
-    if (isNaN(userId) || isNaN(transactionId)) {
+    if (!Number.isInteger(parseInt(transactionId))) {
         res.status(406).json({ error: "invalid query" });
     } else {
 

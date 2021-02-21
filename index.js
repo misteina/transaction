@@ -9,7 +9,7 @@ app.disable('x-powered-by');
 
 app.use(helmet());
 app.use(cors());
-app.use(cookieParser());
+app.use(cookieParser(require('./lib/secret')));
 app.use(require('./middlewares/auth'));
 
 app.post('/users', require('./handlers/users'));

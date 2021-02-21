@@ -4,31 +4,29 @@ module.exports = function (req, res, next){
     // This will not be implemented this way in a real world production application.
     // JSON Web Tokens is the ideal way to implement this in production.
 
-    const checkRoutes = ['/currencies', '/transactions'];
+    const checkRoutes = ['currencies', 'transactions'];
 
-    for (let route of checkRoutes){
-        if (req.path.startsWith(route)){
+    const path = req.path.split('/')[1];
 
-            const userId = req.cookies.id;
-            const apiKey = req.cookies.apiKey;
+    if (checkRoutes.includes(path)) {
 
-            const connection = require('../lib/connection');
+        const userId = req.signedCookies.id;
+        const apiKey = req.signedCookies.auth;
 
-            connection.query(
-                "SELECT ApiKey FROM Users WHERE id = ?",
-                [userId],
-                function (error, results) {
-                    if (error || results[0].ApiKey !== apiKey) {
-                        res.status(401).json({ error: "Request not authorized" });
-                    } else {
-                        next();
-                    }
+        const connection = require('../lib/connection');
+
+        connection.query(
+            "SELECT ApiKey FROM Users WHERE id = ?",
+            [userId],
+            function (error, results) {
+                if (error || results[0].ApiKey !== apiKey) {
+                    res.status(401).json({ error: "Request not authorized" });
+                } else {
+                    next();
                 }
-            );
-
-            break;
-        }
+            }
+        );
+    } else {
+        next();
     }
-    
-    next();
 }
