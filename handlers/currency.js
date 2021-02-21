@@ -6,8 +6,8 @@ module.exports = function (req, res) {
 
     const errors = [];
 
-    if (bitcoin.length === 0 && ethereum.length === 0){
-        errors.push("Please fill at least one wallet id");
+    if (bitcoin.length === 0 && ethereum.length === 0) {
+        res.status(406).json({ error: "Please fill at least one wallet id" });
     }
     if (bitcoin.length > 0 && bitcoin.length !== 36) {
         errors.push("Invalid bitcoin wallet id");
