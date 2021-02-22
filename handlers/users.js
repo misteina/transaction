@@ -26,16 +26,16 @@ module.exports = function(req, res){
             function (error, results, fields){
                 if (!error && Number.isInteger(parseInt(results.insertId))){
 
-                    res.cookie('id', results.insertId, { signed: true });
-                    res.cookie('auth', apiKey, { signed: true });
+                    res.cookie('id', results.insertId, { signed: true, httpOnly: false });
+                    res.cookie('auth', apiKey, { signed: true, httpOnly: false });
 
-                    res.json({ success: "Registration successful" });
+                    res.json({ status: 200, type: 'success', message: "Registration successful" });
                 } else {
-                    res.status(406).json({ error: error.sqlMessage });
+                    res.json({ status: 406, type: 'error', message: error.sqlMessage });
                 }
             }
         );
     } else {
-        res.status(406).json({error: errors});
+        res.json({status: 406, type: 'error', message: errors});
     }
 }

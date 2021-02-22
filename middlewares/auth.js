@@ -15,17 +15,21 @@ module.exports = function (req, res, next){
 
         const connection = require('../lib/connection');
 
-        connection.query(
-            "SELECT ApiKey FROM Users WHERE id = ?",
-            [userId],
-            function (error, results) {
-                if (error || results[0].ApiKey !== apiKey) {
-                    res.status(401).json({ error: "Request not authorized" });
-                } else {
-                    next();
+        if (Number.isInteger(parseInt(userId)) && apiKey.length > 0){
+            connection.query(
+                "SELECT ApiKey FROM User WHERE id = ?",
+                [userId],
+                function (error, results) {
+                    if (error || results[0].ApiKey !== apiKey) {
+                        res.json({ status: 401, type: 'error', message: "Request not authorized(1)" });
+                    } else {
+                        next();
+                    }
                 }
-            }
-        );
+            );
+        } else {
+            res.json({ status: 401, type: 'error', message: "Request not authorized(2)" });
+        }        
     } else {
         next();
     }

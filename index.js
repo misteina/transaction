@@ -1,6 +1,7 @@
 const helmet = require('helmet');
+const path = require('path');
 const express = require('express');
-const cors = require('cors');
+//const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const app = express();
 const port = 3000;
@@ -8,11 +9,14 @@ const port = 3000;
 app.disable('x-powered-by');
 
 app.use(helmet());
-app.use(cors());
+//app.use(cors({credentials: true, exposedHeaders: ["set-cookie"]}));
 app.use(express.json());
 app.use(cookieParser(require('./lib/secret')));
 app.use(require('./middlewares/auth'));
+app.use(express.static(path.join(__dirname, 'public')));
 
+app.get('/', (req, res) => res.redirect('/tests.html'));
+app.post('/', require('./handlers/erase'));
 app.post('/users', require('./handlers/users'));
 app.post('/currencies', require('./handlers/currency'));
 app.post('/transactions', require('./handlers/transaction'));

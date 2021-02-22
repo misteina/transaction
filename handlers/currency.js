@@ -2,8 +2,8 @@
 
 module.exports = function (req, res) {
 
-    const bitcoin = req.body.bitcoin.trim();
-    const ethereum = req.body.ethereum.trim();
+    const bitcoin = req.body.bitcoin || "";
+    const ethereum = req.body.ethereum || "";
     const userId = req.signedCookies.id;
 
     const errors = [];
@@ -31,14 +31,14 @@ module.exports = function (req, res) {
     if (errors.length === 0) {
 
         let params = [bitcoin, ethereum, userId];
-        let query = "UPDATE Users SET BitcoinWallet = ?, EthereumWallet = ? WHERE id = ?";
+        let query = "UPDATE User SET BitcoinWallet = ?, EthereumWallet = ? WHERE id = ?";
 
         if (bitcoin.length === 0){
             params = [ethereum, userId];
-            query = "UPDATE Users SET EthereumWallet = ?";
+            query = "UPDATE User SET EthereumWallet = ? WHERE id = ?";
         } else if (ethereum.length === 0) {
             params = [bitcoin, userId];
-            query = "UPDATE Users SET BitcoinWallet = ?";
+            query = "UPDATE User SET BitcoinWallet = ? WHERE id = ?";
         }
 
         const connection = require('../lib/connection');
@@ -48,13 +48,13 @@ module.exports = function (req, res) {
             params,
             function (error, results) {
                 if (!error && results.affectedRows === 1) {
-                    res.json({ success: "Wallet Id added successfully" });
+                    res.json({ status: 200, type: 'success', message: `Wallet Id (${bitcoin}) added successfully` });
                 } else {
-                    res.status(406).json({ error: error.sqlMessage });
+                    res.json({ status: 406, type: 'error', message: error.sqlMessage });
                 }
             }
         );
     } else {
-        res.status(406).json({ error: errors });
+        res.status(406).json({ status: 406, type: 'error', message: errors });
     }
 }
