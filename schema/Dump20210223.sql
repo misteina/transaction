@@ -36,7 +36,7 @@ CREATE TABLE `Transaction` (
   PRIMARY KEY (`Id`),
   KEY `UserId` (`Source`),
   KEY `Created` (`Created`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -63,7 +63,7 @@ CREATE TABLE `User` (
   UNIQUE KEY `EthereumWallet_UNIQUE` (`EthereumWallet`),
   KEY `ApiKey` (`ApiKey`),
   KEY `Login` (`Email`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -75,4 +75,4 @@ CREATE TABLE `User` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-02-23 12:12:21
+-- Dump completed on 2021-02-23 14:26:35
