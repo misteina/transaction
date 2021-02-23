@@ -13,11 +13,13 @@ INSTALLATION
 
 6. Install Redis using this [guide](https://www.digitalocean.com/community/tutorials/how-to-install-and-secure-redis-on-ubuntu-18-04) if it is not installed on your computer. Redis is required for the job queue to work.
 
-7. Ensure that port 3000 is available or you may change the port at PROJECT_FOLDER/index.js
+7. Ensure that port 3000 is available or you may change the port at `PROJECT_FOLDER/index.js`
 
 8. Run `npm start` to start the server.
 
 9. Visit http://localhost:3000 on your browser and you will be redirected to the testing page.
+
+
 
 
 NOTE
