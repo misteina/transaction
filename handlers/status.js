@@ -1,10 +1,10 @@
+// This is the route handler that shows the status of a transaction.
+
 module.exports = function (req, res) {
 
     const transactionId = req.params.id;
 
-    if (!Number.isInteger(parseInt(transactionId))) {
-        res.status(406).json({ error: "invalid query" });
-    } else {
+    if (Number.isInteger(parseInt(transactionId))) {
 
         const connection = require('../lib/connection');
 
@@ -13,11 +13,13 @@ module.exports = function (req, res) {
             [transactionId],
             function (error, results) {
                 if (!error && results.length === 1) {
-                    res.json({ data: results[0]['State'] });
+                    res.json({ status: 200, type: 'success', message: results[0]['State'] });
                 } else {
-                    res.status(406).json({ error: "Request failed" });
+                    res.json({ status: 406, type: 'error', message: (error !== null)? error.sqlMessage : "Request failed" });
                 }
             }
         );
+    } else {
+        res.json({ status: 406, type: 'error', message: "invalid query" });
     }
 }

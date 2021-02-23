@@ -1,3 +1,5 @@
+// This is the route handler that adds a new user.
+
 module.exports = function(req, res){
 
     const user = req.body.user.trim();
@@ -6,6 +8,8 @@ module.exports = function(req, res){
     const errors = [];
 
     const validateEmail = require("email-validator");
+
+    // Validate user details
 
     if (!validateEmail.validate(email)){
         errors.push("Invalid email");
@@ -26,12 +30,12 @@ module.exports = function(req, res){
             function (error, results, fields){
                 if (!error && Number.isInteger(parseInt(results.insertId))){
 
-                    res.cookie('id', results.insertId, { signed: true, httpOnly: false });
-                    res.cookie('auth', apiKey, { signed: true, httpOnly: false });
+                    res.cookie('id', results.insertId, { signed: true });
+                    res.cookie('auth', apiKey, { signed: true });
 
-                    res.json({ status: 200, type: 'success', message: "Registration successful" });
+                    res.json({ status: 200, type: 'success', message: `Registration successful with user ID ${results.insertId}` });
                 } else {
-                    res.json({ status: 406, type: 'error', message: error.sqlMessage });
+                    res.json({ status: 406, type: 'error', message: (error !== null) ? error.sqlMessage : "Request failed" });
                 }
             }
         );

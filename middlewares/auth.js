@@ -2,7 +2,7 @@ module.exports = function (req, res, next){
 
     // This is the middleware that authenticates and authorizes user requests.
     // This will not be implemented this way in a real world production application.
-    // JSON Web Tokens is the ideal way to implement this in production.
+    // JSON Web Tokens is a better way to implement authentication in production.
 
     const checkRoutes = ['currencies', 'transactions'];
 

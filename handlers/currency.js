@@ -1,4 +1,4 @@
-// This is the route handler to add transaction currency
+// This is the route handler to add transaction currency in Bitcoin or Ethereum
 
 module.exports = function (req, res) {
 
@@ -8,7 +8,7 @@ module.exports = function (req, res) {
 
     const errors = [];
 
-    // From my little research the bitcoin and Ethereum wallet id takes the format like:
+    // From my little research it seems the bitcoin and Ethereum wallet id takes the format like:
     // 8a15ne4d-3d6c-6745-d282-da885h64pqf9
     // Therefore the validation regex will be structured like:
     // /[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}/
@@ -19,26 +19,29 @@ module.exports = function (req, res) {
         errors.push("Invalid user ID");
     }
     if (bitcoin.length === 0 && ethereum.length === 0) {
-        res.status(406).json({ error: "Please fill at least one wallet id" });
+        res.json({ status: 406, type: 'error', error: "Please fill at least one wallet id" });
     }
     if (bitcoin.length > 0 && !walletFormat.test(bitcoin)) {
-        errors.push("Invalid bitcoin wallet id");
+        errors.push("Invalid Bitcoin wallet id");
     }
     if (ethereum.length > 0 && !walletFormat.test(ethereum)) {
-        errors.push("Invalid ethereum wallet id");
+        errors.push("Invalid Ethereum wallet id");
     }
 
     if (errors.length === 0) {
 
-        let params = [bitcoin, ethereum, userId];
-        let query = "UPDATE User SET BitcoinWallet = ?, EthereumWallet = ? WHERE id = ?";
+        let feedback = `Bitcoin and Ethereum wallet IDs ${bitcoin}, ${ethereum} added successfully`;
+        let params = [bitcoin, 100000.00, ethereum, 100000.00, userId];
+        let query = "UPDATE User SET BitcoinWallet = ?, BitcoinBalance = ? EthereumWallet = ?, EthereumBalance = ? WHERE id = ?";
 
         if (bitcoin.length === 0){
-            params = [ethereum, userId];
-            query = "UPDATE User SET EthereumWallet = ? WHERE id = ?";
+            feedback = `Ethereum wallet ID ${ethereum} added successfully`;
+            params = [ethereum, 100000.00, userId];
+            query = "UPDATE User SET EthereumWallet = ?, EthereumBalance = ? WHERE id = ?";
         } else if (ethereum.length === 0) {
-            params = [bitcoin, userId];
-            query = "UPDATE User SET BitcoinWallet = ? WHERE id = ?";
+            feedback = `Bitcoin wallet ID ${bitcoin} added successfully`;
+            params = [bitcoin, 100000.00, userId];
+            query = "UPDATE User SET BitcoinWallet = ?, BitcoinBalance = ? WHERE id = ?";
         }
 
         const connection = require('../lib/connection');
@@ -48,9 +51,9 @@ module.exports = function (req, res) {
             params,
             function (error, results) {
                 if (!error && results.affectedRows === 1) {
-                    res.json({ status: 200, type: 'success', message: `Wallet Id (${bitcoin}) added successfully` });
+                    res.json({ status: 200, type: 'success', message: feedback });
                 } else {
-                    res.json({ status: 406, type: 'error', message: error.sqlMessage });
+                    res.json({ status: 406, type: 'error', message: (error !== null) ? error.sqlMessage : "Request failed" });
                 }
             }
         );

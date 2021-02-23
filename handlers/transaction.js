@@ -1,4 +1,9 @@
+// This is the route handler that receives a transaction request from a user and 
+// dispatches the request to the job queue located in PROJECT_DIRECTORY/queue/job.js
+
 module.exports = function (req, res){
+
+    // Input fields
     
     const amount = req.body.amount;
     const currency = req.body.currency;
@@ -7,9 +12,8 @@ module.exports = function (req, res){
 
     const errors = [];
 
-    if (!Number.isInteger(parseInt(userId))){
-        errors.push("Invalid user id");
-    }
+    // Validate inputs
+
     if (!Number.isInteger(parseInt(amount))){
         errors.push("Invalid amount selected");
     }
@@ -27,45 +31,57 @@ module.exports = function (req, res){
 
         const connection = require('../lib/connection');
 
+        let walletType = (currency === 'Bitcoin') ? 'BitcoinWallet' : 'EthereumWallet';
+
         connection.query(
-            "SELECT MaxAmount FROM Users WHERE id = ?",
-            [userId],
+            `SELECT MaxAmount, ${walletType} FROM User WHERE id = ?`,
+            [source],
             function (error, results, fields){
                 if (!error){
-                    if (results.length === 1){
+                    if (results.length === 1 && results[0][walletType] != null){
+
+                        // Ensures that the amount is within the limits of the 
+                        // maximum amount per transaction.
                         
                         if (amount <= results[0].MaxAmount){
                             connection.query(
-                                "INSERT INTO Transactions (Amount, Currency, Source, Target) VALUES (?, ?, ?, ?)",
+                                "INSERT INTO Transaction (Amount, Currency, Source, Target) VALUES (?, ?, ?, ?)",
                                 [amount, currency, source, target],
                                 function (error, results, fields) {
-                                    if (!error && !isNaN(results.insertId)) {
+                                    if (!error && Number.isInteger(parseInt(results.insertId))) {
 
                                         const addToQueue = require('../queue/job');
 
-                                        let params = [connection, results.insertId, amount, currency, source, target];
+                                        let currencyType = (currency === 'Bitcoin')? 'BitcoinBalance' : 'EthereumBalance';
+
+                                        let params = [connection, results.insertId, amount, currencyType, source, target];
+
+                                        // Adds transaction to queue to be processed at the background
+                                        // in parallel
 
                                         addToQueue(params);
 
-                                        res.json({success: `Transaction successfully submitted with ID ${results.insertId}`});
+                                        res.json({status: 200, type: 'success', message: `Transaction successfully submitted with ID ${results.insertId}`});
 
                                     } else {
-                                        res.status(406).json({ error: error });
+                                        res.json({ status: 406, type: 'error', error: (error !== null) ? error.sqlMessage : "Request failed" });
                                     }
                                 }
                             );
                         } else {
-                            res.status(406).json({ error: "Maximum amount per transaction exceeded" });
+                            res.json({ status: 406, type: 'error', error: "Maximum amount per transaction exceeded" });
                         }
+                    } else if (results[0][walletType] === null) {
+                        res.json({ status: 406, type: 'error', error: `You do not have a ${currency} wallet` });
                     } else {
-                        res.status(406).json({ error: error });
+                        res.json({ status: 406, type: 'error', error: (error !== null) ? error.sqlMessage : "Request failed" });
                     }
                 } else {
-                    res.status(406).json({ error: "Request failed" });
+                    res.json({ status: 406, type: 'error', error: (error !== null) ? error.sqlMessage : "Request failed" });
                 }
             }
         );
     } else {
-        res.status(406).json({ error: errors });
+        res.json({ status: 406, type: 'error', error: errors });
     }
 }
