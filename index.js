@@ -1,7 +1,6 @@
 const helmet = require('helmet');
 const path = require('path');
 const express = require('express');
-//const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const app = express();
 const port = 3000;
@@ -9,7 +8,6 @@ const port = 3000;
 app.disable('x-powered-by');
 
 app.use(helmet());
-//app.use(cors({credentials: true, exposedHeaders: ["set-cookie"]}));
 app.use(express.json());
 app.use(cookieParser(require('./lib/secret')));
 app.use(require('./middlewares/auth'));
