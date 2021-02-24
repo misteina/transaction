@@ -31,14 +31,18 @@ module.exports = function (req, res){
 
         const connection = require('../lib/connection');
 
-        let walletType = (currency === 'Bitcoin') ? 'BitcoinWallet' : 'EthereumWallet';
+        let [walletType, balance] = (currency === 'Bitcoin') ? 
+            ['BitcoinWallet', 'BitcoinBalance'] : ['EthereumWallet', 'EthereumBalance'];
 
         connection.query(
-            `SELECT MaxAmount, ${walletType} FROM User WHERE id = ?`,
+            `SELECT ${walletType}, ${balance}, MaxAmount FROM User WHERE id = ?`,
             [source],
             function (error, results, fields){
                 if (!error){
-                    if (results.length === 1 && results[0][walletType] != null){
+
+                    // Check if user has the wallet type and adequate balance
+
+                    if (results.length === 1 && results[0][balance] > amount && results[0][walletType] != null){
 
                         // Ensures that the amount is within the limits of the 
                         // maximum amount per transaction.
@@ -73,6 +77,8 @@ module.exports = function (req, res){
                         }
                     } else if (results[0][walletType] === null) {
                         res.json({ status: 406, type: 'error', error: `You do not have a ${currency} wallet` });
+                    } else if (results[0][balance] < amount) {
+                        res.json({ status: 406, type: 'error', error: `You do not have adequate balance in your ${currency} wallet` });
                     } else {
                         res.json({ status: 406, type: 'error', error: (error !== null) ? error.sqlMessage : "Request failed" });
                     }

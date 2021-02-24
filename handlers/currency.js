@@ -58,6 +58,6 @@ module.exports = function (req, res) {
             }
         );
     } else {
-        res.status(406).json({ status: 406, type: 'error', message: errors });
+        res.json({ status: 406, type: 'error', message: errors });
     }
 }
